@@ -1,13 +1,14 @@
 import React, {Component} from 'react';
 import Buttons from './src/Buttons';
 import MyDogs from './src/MyDogs';
+import SwipeView from './src/SwipeView';
 import { StyleSheet, Dimensions, View, Platform} from 'react-native';
 
 import { TabView, TabBar, SceneMap } from 'react-native-tab-view';
 import { Icon } from 'react-native-elements'
 
 const ViewDogs = () => (
-  <MyDogs/>
+  <SwipeView/>
 );
 
 const getTabBarIcon = (props) => {
@@ -26,7 +27,11 @@ const getTabBarIcon = (props) => {
   return null
 }
 
-const SecondRoute = () => (
+const LikedDogs = () => (
+  <MyDogs/>
+);
+
+const AddDog = () => (
   <View style={[styles.scene, { backgroundColor: '#673ab7' }]} />
 );
 
@@ -41,9 +46,9 @@ export default function App() {
   ]);
 
   const renderScene = SceneMap({
-    v1: SecondRoute,
+    v1: LikedDogs,
     v2: ViewDogs,
-    v3: SecondRoute,
+    v3: AddDog,
   });
 
   return (
