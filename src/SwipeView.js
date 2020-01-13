@@ -1,34 +1,32 @@
 import React from 'react';
-import { StyleSheet, Text, View, Dimensions, Image, Animated, PanResponder } from 'react-native';
+import { Platform, Text, View, Dimensions, Image, Animated, PanResponder } from 'react-native';
 
-const SCREEN_HEIGHT = Dimensions.get('window').height
-const SCREEN_WIDTH = Dimensions.get('window').width
 import Icon, { ThemeProvider } from 'react-native-elements'
-const url = 'https://github.com/wniedzwiedz/dogger/blob/master/src/elmo.JPG?raw=true';
 
+const config = require('../config');
 
-
+var Elements = []
 
 export default class SwipeView extends React.Component {
   
-  /*Elements = [
-    { id: "1", uri: url },
-    { id: "2", uri: url },
-    { id: "3", uri: url },
-    { id: "4", uri: url },
-    { id: "5", uri: url },
-  ]*/
-
   loadDogs() {
-    return fetch('https://lit-falls-41523.herokuapp.com/randomDogs?limit=5', {
+    return fetch(config.hostUrl+'/randomDogs?limit=5', {
       method: 'GET'
     })
     .then((response) => response.json())
     .then((responseJson) => {
-      this.Elements.push(...responseJson.data.map(
+      if(responseJson.status.statusType.localeCompare("SUCCESS") != 0)
+      {
+        console.warn(responseJson.status.errorMessege);
+        return
+      }
+      Elements.push(...responseJson.data.map(
         (element, index) => {
-            return {id: index+this.state.lastKey,
-              uri: "https://drive.google.com/thumbnail?id="+element.pictureUrl}
+            return {
+              id: index+this.state.lastKey,
+              dogId: element.id,
+              uri: config.googleImageUrl+element.pictureUrl
+            }
         }
       ))
       this.setState({lastKey: this.state.lastKey+responseJson.data.length});
@@ -40,10 +38,10 @@ export default class SwipeView extends React.Component {
 
   checkElements()
   {
-    console.log(this.Elements)
-    if(this.state.currentIndex+2>=this.Elements.length)
+    console.log(this);
+    if(this.state.currentIndex+1>=Elements.length)
     {
-      this.Elements.splice(0, this.state.currentIndex);
+      Elements.splice(0, this.state.currentIndex);
       this.loadDogs()
       this.setState({currentIndex: 0});
     }
@@ -51,6 +49,23 @@ export default class SwipeView extends React.Component {
 
   onLike()
   {
+    fetch(config.hostUrl+'/likeDog', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: "dogId="+Elements[this.state.currentIndex-1].dogId,
+    }).then((response) => response.json())
+    .then((responseJson) => {
+      if(responseJson.status.statusType.localeCompare("SUCCESS") != 0)
+      {
+        console.warn(responseJson.status.errorMessege);
+        return
+      }
+    })
+    .catch((error) =>{
+      console.error(error);
+    });
     this.checkElements()
   }
 
@@ -59,22 +74,28 @@ export default class SwipeView extends React.Component {
     this.checkElements()
   }
 
+  updateSize()
+  {
+    this.setState({windowSize: Dimensions.get('window')});
+  }
+
   constructor() {
     super()
 
-    this.Elements = []
     this.position = new Animated.ValueXY()
     this.state = {
       currentIndex: 0,
-      lastKey: 0
+      lastKey: 0,
+      windowSize: Dimensions.get('window'),
     }
     this.loadDogs = this.loadDogs.bind(this)
     this.onLike = this.onLike.bind(this)
     this.onDislike = this.onDislike.bind(this)
     this.checkElements = this.checkElements.bind(this)
+    this.updateSize = this.updateSize.bind(this)
 
     this.rotate = this.position.x.interpolate({
-      inputRange: [-SCREEN_WIDTH /2 ,0, SCREEN_WIDTH /2],
+      inputRange: [-Dimensions.get('window').width /2 ,0, Dimensions.get('window').width /2],
       outputRange: ['-30deg', '0deg', '10deg'],
       extrapolate: 'clamp'
     })
@@ -88,29 +109,27 @@ export default class SwipeView extends React.Component {
     }
 
     this.likeOpacity = this.position.x.interpolate({
-      inputRange: [-SCREEN_WIDTH / 2, 0, SCREEN_WIDTH / 2],
+      inputRange: [-Dimensions.get('window').width / 2, 0, Dimensions.get('window').width / 2],
       outputRange: [0, 0, 1],
       extrapolate: 'clamp'
     })
     this.dislikeOpacity = this.position.x.interpolate({
-      inputRange: [-SCREEN_WIDTH / 2, 0, SCREEN_WIDTH / 2],
+      inputRange: [-Dimensions.get('window').width / 2, 0, Dimensions.get('window').width / 2],
       outputRange: [1, 0, 0],
       extrapolate: 'clamp'
     })
 
     this.nextCardOpacity = this.position.x.interpolate({
-      inputRange: [-SCREEN_WIDTH / 2, 0, SCREEN_WIDTH / 2],
+      inputRange: [-Dimensions.get('window').width / 2, 0, Dimensions.get('window').width / 2],
       outputRange: [1, 0, 1],
       extrapolate: 'clamp'
     })
     this.nextCardScale = this.position.x.interpolate({
-      inputRange: [-SCREEN_WIDTH / 2, 0, SCREEN_WIDTH / 2],
+      inputRange: [-Dimensions.get('window').width / 2, 0, Dimensions.get('window').width / 2],
       outputRange: [1, 0.8, 1],
       extrapolate: 'clamp'
     })
 
-  }
-  componentWillMount() {
     this.PanResponder = PanResponder.create({
 
       onStartShouldSetPanResponder: (evt, gestureState) => true,
@@ -122,7 +141,7 @@ export default class SwipeView extends React.Component {
 
         if (gestureState.dx > 120) {
           Animated.spring(this.position, {
-            toValue: { x: SCREEN_WIDTH + 100, y: gestureState.dy },
+            toValue: { x: Dimensions.get('window').width + 100, y: gestureState.dy },
             restDisplacementThreshold: 0.1,
             overshootClamping: true
           }).start(() => {
@@ -134,7 +153,7 @@ export default class SwipeView extends React.Component {
         }
         else if (gestureState.dx < -120) {
           Animated.spring(this.position, {
-            toValue: { x: -SCREEN_WIDTH - 100, y: gestureState.dy },
+            toValue: { x: -Dimensions.get('window').width - 100, y: gestureState.dy },
             restDisplacementThreshold: 0.1,
             overshootClamping: true
           }).start(() => {
@@ -152,16 +171,23 @@ export default class SwipeView extends React.Component {
         }
       }
     })
+
+  }
+  componentDidMount() {
+    if(Elements.length <= 0)
+    {
+      this.loadDogs();
+    }
   }
 
   renderElements = () => {
-    if(this.Elements.length <= 0)
-    {
-      this.loadDogs();
-      if(this.Elements.length <= 0) return null;
+    console.log(Elements)
+    if(!(Platform.OS === 'android' || Platform.OS === 'ios')){
+      window.addEventListener('resize', this.updateSize);
     }
+    if(Elements.length <= 0) return null;
 
-    return this.Elements.map((item, i) => {
+    return Elements.map((item, i) => {
 
 
       if (i < this.state.currentIndex) {
@@ -172,7 +198,7 @@ export default class SwipeView extends React.Component {
         return (
           <Animated.View
             {...this.PanResponder.panHandlers}
-            key={item.id} style={[this.rotateAndTranslate, { height: SCREEN_HEIGHT - 120, width: SCREEN_WIDTH, padding: 10, position: 'absolute' }]}>
+            key={item.id} style={[this.rotateAndTranslate, { height: Dimensions.get('window').height - 120, width: Dimensions.get('window').width, padding: 10, position: 'absolute' }]}>
             <Animated.View style={{ opacity: this.likeOpacity, transform: [{ rotate: '-30deg' }], position: 'absolute', top: 50, left: 40, zIndex: 1000 }}>
               <Text style={{ borderWidth: 1, borderColor: 'green', color: 'green', fontSize: 32, fontWeight: '800', padding: 10 }}>LIKE</Text>
 
@@ -197,7 +223,7 @@ export default class SwipeView extends React.Component {
             key={item.id} style={[{
               opacity: this.nextCardOpacity,
               transform: [{ scale: this.nextCardScale }],
-              height: SCREEN_HEIGHT - 120, width: SCREEN_WIDTH, padding: 10, position: 'absolute'
+              height: Dimensions.get('window').height - 120, width: Dimensions.get('window').width, padding: 10, position: 'absolute'
             }]}>
             <Animated.View style={{ opacity: 0, transform: [{ rotate: '-30deg' }], position: 'absolute', top: 50, left: 40, zIndex: 1000 }}>
               <Text style={{ borderWidth: 1, borderColor: 'green', color: 'green', fontSize: 32, fontWeight: '800', padding: 10 }}>LIKE</Text>

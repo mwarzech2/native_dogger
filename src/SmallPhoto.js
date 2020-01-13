@@ -3,12 +3,14 @@ import {
   View,
   Image
   } from 'react-native';
+import { googleThumbnailUrl } from '../config';
   
+const config = require('../config');
 
 class SmallPhoto extends React.Component {
 
   static defaultProps = {
-    url: 'https://github.com/wniedzwiedz/dogger/blob/master/src/elmo.JPG?raw=true',
+    url: config.templateImageUrl,
   }
 
 render(){
@@ -22,7 +24,7 @@ render(){
     marginRight: "2%"
   }}
 >
-    <Image source={{uri: this.props.url}} style={{width: "100%", paddingTop: "56.25%", alignItems:"center"}} accessibilityLabel='Dog Image'/>
+    <Image source={{uri: googleThumbnailUrl+this.props.url}} style={{width: "100%", paddingTop: "56.25%", alignItems:"center"}} accessibilityLabel='Dog Image'/>
     </View>
   );
 }

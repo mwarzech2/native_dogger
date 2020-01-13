@@ -1,56 +1,80 @@
 import React from 'react';
-import './App.css';
 import DogPhoto from './DogPhoto'
 
 import {
+  Text,
+  StyleSheet,
   Button,
   View,
-  } from 'react-native';
+} from 'react-native';
+
+const config = require('../config');
+
+function UnlikeDog(dogId)
+{
+  console.log("Deleting dog: "+dogId)
+  fetch(config.hostUrl+'/unlikeDog', {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: "dogId="+dogId,
+  }).then((response) => response.json())
+  .then((responseJson) => {
+    if(responseJson.status === undefined || responseJson.status.statusType.localeCompare("SUCCESS") != 0)
+    {
+      console.error(responseJson.status.errorMessege);
+      return
+    }
+  })
+  .catch((error) =>{
+    console.error(error);
+  });
+}
 
 
-  function Dog(props) {
+function Dog(props) {
+  if(props.dog === undefined) {
+    return null
+  } else {
     return (
-    <div className="Dog" style={props.style}>
-        <header className="Dogs-header">
-            <View style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginRight: 10,
-                marginLeft: 10
-                
+      <View style={{
+        width: "100%",
+        height: "100%",
+        justifyContent: "flex-start",
+        flexDirection: "column",
+        alignItems: "center",
+      }}>
+        <View style={{width: "100%", height: "80%"}}>
+          <DogPhoto url={props.dog.pictureUrl}/>
+        </View>
+        <Text style={styles.title}>{props.dog.name}</Text>
+        <Text style={styles.text}>{props.dog.info}</Text>
+        <View style={[{position: "absolute", bottom: 10, right: 10}]}>
+          <Button 
+            title="UNLIKE" 
+            color='#ff3452'
+            onPress={()=>{
+              UnlikeDog(props.dog.id)
+              props.closeModalMethod()
+            }}
+          />
+        </View>
+      </View>
+    );
+  }
+}
+export default Dog;
 
-            }}>
-
-            <View style={{width: "55%", alignItems:"left", marginLeft: "5%"}}>
-
-            <DogPhoto />
-            </View>
-            <View style={{flexDirection: "column",width: "30%", alignItems:"center", marginRight: "5%"}}>
-            <h1>IMIĘ</h1>
-            <p>
-            a        </p>
-
-            <View style={[{ width: "80%",  margin: "10%" }]}>
-
-            <Button 
-            title="LIKE" 
-            color='#fd0006'
-            />
-            </View>
-
-            <View style={[{ width: "80%", margin: "10%" }]}>
-            <Button 
-            title="NEXT" 
-            color='#009b95'
-            />
-
-            </View>
-
-            </View></View>
-
-
-      </header>
-    </div>
-    );}
-    export default Dog;
+const styles = StyleSheet.create({
+  title: {
+    color: '#ffff',
+    fontSize: 30,
+    paddingTop: 10,
+  },
+  text: {
+    color: '#ffff',
+    fontSize: 15,
+    paddingTop: 5,
+  }
+});

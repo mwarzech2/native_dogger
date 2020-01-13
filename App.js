@@ -1,15 +1,14 @@
 import React, {Component} from 'react';
 import Buttons from './src/Buttons';
 import MyDogs from './src/MyDogs';
+import Dog from './src/Dog';
 import SwipeView from './src/SwipeView';
-import { StyleSheet, Dimensions, View, Platform} from 'react-native';
+import { TouchableHighlight, StyleSheet, Dimensions, View, Platform, Text} from 'react-native';
 
 import { TabView, TabBar, SceneMap } from 'react-native-tab-view';
 import { Icon } from 'react-native-elements'
+import { IconButton } from 'react-native-paper';
 
-const ViewDogs = () => (
-  <SwipeView/>
-);
 
 const getTabBarIcon = (props) => {
 
@@ -27,9 +26,6 @@ const getTabBarIcon = (props) => {
   return null
 }
 
-const LikedDogs = () => (
-  <MyDogs/>
-);
 
 const AddDog = () => (
   <View style={[styles.scene, { backgroundColor: '#673ab7' }]} />
@@ -38,12 +34,31 @@ const AddDog = () => (
 const initialLayout = { width: Dimensions.get('window').width };
 
 export default function App() {
+
+  const Modal = Platform.select({
+    ios: () => require('react-native').Modal,
+    android: () => require('react-native').Modal,
+    web: () => require('modal-react-native-web'),
+  })();
   const [index, setIndex] = React.useState(1);
   const [routes] = React.useState([
     { key: 'v1', title: 'Liked Dogs' },
     { key: 'v2', title: 'View Dogs' },
     { key: 'v3', title: 'Add dog' },
   ]);
+  const [modalVisible, setModalVisible] = React.useState(false);
+  const [modalDog, setModalDog] = React.useState(undefined);
+  
+
+  const ViewDogs = () => (
+    <View style={{flex: 1}}>
+      <SwipeView />
+    </View>
+  );
+  
+  const LikedDogs = () => (
+    <MyDogs showModalMethod={openModalDog}/>
+  );
 
   const renderScene = SceneMap({
     v1: LikedDogs,
@@ -51,8 +66,33 @@ export default function App() {
     v3: AddDog,
   });
 
+  function openModalDog(dog)
+  {
+    setModalDog(dog);
+    setModalVisible(true);
+  }
+
   return (
     <View style={styles.container}>
+      <Modal animationType = {"slide"}
+          transparent = {false}
+          visible = {modalVisible}
+          onRequestClose = {() => { console.log("Modal has been closed.") } }
+        >
+          
+        <View style = {styles.modal}>
+          <Dog dog={modalDog} closeModalMethod={()=>{setModalVisible(false)}}/>
+          <View style={{position: "absolute", top: 5, left: 5}}>
+            <IconButton
+              icon="arrow-left"
+              type='font-awesome'
+              color="#ffffff"
+              size={30}
+              onPress={() => {setModalVisible(!openModalDog)}}
+            />
+          </View>
+        </View>
+      </Modal>
       <TabView
         navigationState={{ index, routes }}
         renderScene={renderScene}
@@ -90,47 +130,18 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   labelStyle: {
-    display: 'flex', //(Platform.OS === 'android' || Platform.OS === 'ios') ? 'none' : 'block',
+    display: 'flex', //(Platform.OS === 'android' || Platform.OS === 'ios') ? 'none' : 'flex',
     height: 'auto', //(Platform.OS === 'android' || Platform.OS === 'ios') ? 0 : 'auto',
     flexDirection: 'column',
-  }
-});
-/*
-  function setBody(newBody) {
-    this.setState({ tab: newBody });
-  }
-
-  return (
-    <View style={styles.container}>
-      <View style={styles.menu}>
-        <Buttons setBodyMethod={setBody}/>
-      </View>
-      <View style={styles.content}>
-        <Text style={styles.text}>Hello elo</Text>
-      </View>
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: (Platform.OS === 'android' || Platform.OS === 'ios') ? 35 : 0,
-    flexDirection: 'column',
-    backgroundColor: '#282c34',
-    alignItems: 'stretch',
-    justifyContent: 'center',
   },
-  menu: {
-    flex: 1,
-  },
-  content: {
-    flex: 11,
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
+  modal: {
+     flex: 1,
+     alignItems: 'center',
+     backgroundColor: '#282c34',
+     padding: 0,
   },
   text: {
-    color: '#fff',
+     color: '#3f2949',
+     marginTop: 10
   }
-});*/
+});

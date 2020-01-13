@@ -1,61 +1,88 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import MyDog from './MyDog'
 
 import {
   View,
   ScrollView,
+  RefreshControl,
   } from 'react-native';
 
+  
+const config = require('../config');
+
+var data = undefined
 
 export default function MyDogs(props) {
+  let _isMounted = false;
 
-  const [data, setData] = useState(undefined);
+  //const [data, setData] = useState(undefined);
+  const [refreshing, setRefreshing] = React.useState(false);
+  const [shouldRefresh, setShouldRefresh] = React.useState(false);
+  
+  useEffect(() => {
+    _isMounted = true;
+    return () => {
+      _isMounted = false;
+    }
+  }, [_isMounted]);
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    getDogs().then(() => setRefreshing(false));
+  }, [refreshing]);
 
   function renderDogs()
   {
     let dogs = []
     
-    if(data === undefined)
-    {
-      getDogs();
-      if(data === undefined) return null;
-    }
-    data.data.forEach(element => {
+    getDogs();
+    if(data === undefined) return null;
+    data.forEach((element,i) => {
       dogs.push(<MyDog
-        url={"https://drive.google.com/thumbnail?id="+element.pictureUrl} 
-        dogName={element.name}
+        key={i}
+        dog={element}
+        showModalMethod={props.showModalMethod}
         />)
     });
     return dogs;
   }
 
   function getDogs(){
-    return fetch('https://lit-falls-41523.herokuapp.com/dogs', {
+    return fetch(config.hostUrl+'/likedDogs', {
       method: 'GET'
     })
     .then((response) => response.json())
     .then((responseJson) => {
-      setData({
-        data: responseJson.data,
-      });
-  
+      if(responseJson.status.statusType.localeCompare("SUCCESS") != 0)
+      {
+        console.warn(responseJson.status.errorMessege);
+        return
+      }
+      if(_isMounted && JSON.stringify(data) !== JSON.stringify(responseJson.data)) {
+        console.log("Updated!!! Old data: "+data+", New Data: "+responseJson.data)
+        data = responseJson.data;
+        setRefreshing(false);
+      }
     })
     .catch((error) =>{
       console.error(error);
     });
   }
 
+  console.log("New Update!!!")
   return (
     <View style={props.style}>
-        <ScrollView style={{
-          flexDirection: "column",
-          width:"100%"
-    
-          }}>
-
-    {renderDogs()}
-
-    </ScrollView>
-  </View>
+      <ScrollView style={{
+        flexDirection: "column",
+        height:"100%",
+        width:"100%"
+        }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
+        {renderDogs()}
+      </ScrollView>
+    </View>
   );
 }

@@ -6,26 +6,24 @@ import {
   } from 'react-native';
 import  { TouchableRipple } from 'react-native-paper';
 import SmallPhoto from './SmallPhoto'
-  
 
 class MyDog extends React.Component {
 
   static defaultProps = {
-    url: 'https://github.com/wniedzwiedz/dogger/blob/master/src/elmo.JPG?raw=true',
-    dogName: 'Dog name',
-    info: 'Dog info'
+    dog: undefined,
   }
 
 render(){
+  if(this.props.dog === undefined) return null;
   return (
-    <TouchableRipple onPress={()=>{}} 
+    <TouchableRipple onPress={()=>{this.props.showModalMethod(this.props.dog)}} 
       rippleColor="#ffffff60"
       style={styles.container}>
       <View style={{width: "100%", marginLeft: "10%", flexDirection: "row"}}>
-        <SmallPhoto url={this.props.url} />
+        <SmallPhoto url={this.props.dog.pictureUrl} />
         <View style={{width: "50%", marginLeft: "5%", marginTop: "2%", flexDirection: "column"}}>
-  <Text h1 style={styles.title}>{this.props.dogName}</Text>
-  <Text style={styles.text}>{this.props.info}</Text>
+          <Text style={styles.title}>{this.props.dog.name}</Text>
+          <Text style={styles.text}>{this.props.dog.info}</Text>
         </View>
       </View>
     </TouchableRipple>

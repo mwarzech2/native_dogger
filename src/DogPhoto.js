@@ -1,25 +1,34 @@
 import React from 'react';
 import {
+  Image,
   View,
 
   } from 'react-native';
-import { render } from '@testing-library/react';
   
+const config = require('../config');
 
 class DogPhoto extends React.Component {
 
+  static defaultProps = {
+    url: undefined,
+  }
+
+
 render(){
-  const url = 'https://github.com/wniedzwiedz/dogger/blob/master/src/elmo.JPG?raw=true';
+  if(this.props.url === undefined) return null;
+  console.log("Dog photo should load !!!")
   return (
 
 
-  <View style={{
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "left",
-  }}
->
-    <img src={url} style={{width: "100%", alignItems:"left"}} alt='Image'  />
+    <View
+      style={{
+        flex: 1,
+      }}
+    >
+      <Image 
+        source={{uri: config.googleImageUrl+this.props.url}}
+        style={{ flex: 1, resizeMode: 'cover', borderRadius: 0}}
+      />
     </View>
   );
 }
