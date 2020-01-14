@@ -7,6 +7,17 @@ const config = require('../config');
 
 var Elements = []
 
+function inElementsArray(itemId)
+{
+  for(var i=0; i<Elements.length;i++)
+  {
+    if(Elements[i].id === itemId) {
+      return true
+    }
+  }
+  return false
+}
+
 export default class SwipeView extends React.Component {
   
   loadDogs() {
@@ -20,16 +31,11 @@ export default class SwipeView extends React.Component {
         console.warn(responseJson.status.errorMessege);
         return
       }
-      Elements.push(...responseJson.data.map(
-        (element, index) => {
-            return {
-              id: index+this.state.lastKey,
-              dogId: element.id,
-              uri: config.googleImageUrl+element.pictureUrl
-            }
-        }
-      ))
-      this.setState({lastKey: this.state.lastKey+responseJson.data.length});
+      if(this._isMounted)
+      {
+        Elements = Elements.concat(responseJson.data.filter((item) => !inElementsArray(item.id)));
+        this.setState(this.state)
+      }
     })
     .catch((error) =>{
       console.error(error);
@@ -38,7 +44,6 @@ export default class SwipeView extends React.Component {
 
   checkElements()
   {
-    console.log(this);
     if(this.state.currentIndex+1>=Elements.length)
     {
       Elements.splice(0, this.state.currentIndex);
@@ -54,7 +59,7 @@ export default class SwipeView extends React.Component {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: "dogId="+Elements[this.state.currentIndex-1].dogId,
+      body: "dogId="+Elements[this.state.currentIndex-1].id,
     }).then((response) => response.json())
     .then((responseJson) => {
       if(responseJson.status.statusType.localeCompare("SUCCESS") != 0)
@@ -85,7 +90,6 @@ export default class SwipeView extends React.Component {
     this.position = new Animated.ValueXY()
     this.state = {
       currentIndex: 0,
-      lastKey: 0,
       windowSize: Dimensions.get('window'),
     }
     this.loadDogs = this.loadDogs.bind(this)
@@ -93,6 +97,7 @@ export default class SwipeView extends React.Component {
     this.onDislike = this.onDislike.bind(this)
     this.checkElements = this.checkElements.bind(this)
     this.updateSize = this.updateSize.bind(this)
+    this._isMounted = false;
 
     this.rotate = this.position.x.interpolate({
       inputRange: [-Dimensions.get('window').width /2 ,0, Dimensions.get('window').width /2],
@@ -178,10 +183,14 @@ export default class SwipeView extends React.Component {
     {
       this.loadDogs();
     }
+    this._isMounted = true
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false
   }
 
   renderElements = () => {
-    console.log(Elements)
     if(!(Platform.OS === 'android' || Platform.OS === 'ios')){
       window.addEventListener('resize', this.updateSize);
     }
@@ -211,7 +220,7 @@ export default class SwipeView extends React.Component {
 
             <Image
               style={{ flex: 1, height: null, width: null, resizeMode: 'cover', borderRadius: 20 }}
-              source={{uri: item.uri}} />
+              source={{uri: config.googleImageUrl + item.pictureUrl}} />
 
           </Animated.View>
         )
@@ -237,7 +246,7 @@ export default class SwipeView extends React.Component {
 
             <Image
               style={{ flex: 1, height: null, width: null, resizeMode: 'cover', borderRadius: 20 }}
-              source={{uri: item.uri}} />
+              source={{uri: config.googleImageUrl + item.pictureUrl}} />
 
           </Animated.View>
         )
