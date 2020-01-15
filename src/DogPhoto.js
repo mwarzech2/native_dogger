@@ -27,7 +27,11 @@ render(){
     >
       <Image 
         source={{uri: config.googleImageUrl+this.props.url}}
-        style={{ flex: 1, resizeMode: 'cover', borderRadius: 0}}
+        style={{
+          flex: 1,
+          resizeMode: 'cover',
+          borderRadius: 0,
+        }}
       />
     </View>
   );

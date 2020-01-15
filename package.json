@@ -10,6 +10,7 @@
   "dependencies": {
     "expo": "~36.0.0",
     "expo-device": "~2.0.0",
+    "expo-image-picker": "^8.0.2",
     "modal-react-native-web": "^0.2.0",
     "react": "~16.9.0",
     "react-dom": "~16.9.0",
@@ -17,6 +18,7 @@
     "react-native-device-info": "^5.4.1",
     "react-native-elements": "^1.2.7",
     "react-native-gesture-handler": "^1.5.3",
+    "react-native-image-picker": "^2.0.0",
     "react-native-paper": "^3.4.0",
     "react-native-reanimated": "^1.4.0",
     "react-native-screens": "1.0.0-alpha.23",
@@ -26,7 +28,8 @@
     "react-native-web-tab-view": "https://github.com/RichardLindhout/react-native-web-tab-view",
     "react-navigation": "^4.0.10",
     "reactnativetabview": "^0.0.4",
-    "swiper": "^5.2.1"
+    "swiper": "^5.2.1",
+    "yarn": "^1.21.1"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0",

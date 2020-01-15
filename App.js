@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import Buttons from './src/Buttons';
 import LikedDogs from './src/LikedDogs';
 import Dog from './src/Dog';
+import AddDog from './src/AddDog';
 import SwipeView from './src/SwipeView';
 import { TouchableHighlight, StyleSheet, Dimensions, View, Platform, Text} from 'react-native';
 
@@ -27,8 +28,9 @@ const getTabBarIcon = (props) => {
 }
 
 
-const AddDog = () => (
-  <View style={[styles.scene, { backgroundColor: '#673ab7' }]} />
+const AddDogTab = () => (
+ // <View style={[styles.scene, { backgroundColor: '#673ab7' }]} />
+  <AddDog />
 );
 
 const initialLayout = { width: Dimensions.get('window').width };
@@ -67,7 +69,7 @@ export default function App() {
   const renderScene = SceneMap({
     v1: LikedDogsTab,
     v2: ViewDogs,
-    v3: AddDog,
+    v3: AddDogTab,
   });
 
   function openModalDog(dog)
@@ -86,12 +88,12 @@ export default function App() {
           
         <View style = {styles.modal}>
           <Dog dog={modalDog} closeModalMethod={()=>{setModalVisible(false)}}/>
-          <View style={{position: "absolute", top: 5, left: 5}}>
+          <View style={{position: "absolute", top: 5, left: 5, zIndex: 5}}>
             <IconButton
               icon="arrow-left"
               type='font-awesome'
               color="#ffffff"
-              size={30}
+              size={35}
               onPress={() => {setModalVisible(!openModalDog)}}
             />
           </View>
