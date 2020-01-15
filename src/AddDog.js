@@ -11,6 +11,7 @@ export default class AddDog extends React.Component {
   state = {
     image: null,
     shift: new Animated.Value(0),
+    dogInfo: undefined,
   };
 
   constructor(props)
@@ -18,7 +19,6 @@ export default class AddDog extends React.Component {
     super(props)
 
     this.dogName = undefined
-    this.dogInfo = undefined
   }
 
   componentDidMount() {
@@ -52,17 +52,32 @@ export default class AddDog extends React.Component {
         <TextInput
           style={styles.textInput}
           placeholder='DOG NAME'
+          maxLength={15}
           onChangeText={text => {this.dogName = text}}
         />
         <TextInput
           multiline
-          numberOfLines={4}
+          numberOfLines={2}
           style={styles.infoInput}
           editable
-          maxLength={45}
+          maxLength={50}
           placeholder='DOG INFO'
-          onChangeText={text => {this.dogInfo = text}}
+          value={this.state.dogInfo?this.state.dogInfo:''}
+          onChangeText={text => {
+            if(text.split('\n').length < 4)
+            {
+              this.setState({dogInfo: text})
+            }
+          }}
         />
+        <View 
+          style={styles.uploadButton}
+        >
+          <Button
+            title="Upload the dog"
+            onPress={()=>{}}
+          />
+        </View>
       </Animated.View>
     );
   }
@@ -130,17 +145,23 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 18,
     borderBottomColor: "grey",
-    borderBottomWidth: 2,
+    borderBottomWidth: 1,
     height: 40,
     minWidth: "50%",
   }, 
   infoInput: {
-    marginTop: 10,
+    textAlignVertical: 'top',
+    marginTop: 20,
+    padding: 5,
     color: "#fff",
     fontSize: 15,
-    borderBottomColor: "grey",
-    borderBottomWidth: 2,
-    height: 160,
-    minWidth: "50%",
+    borderColor: "grey",
+    borderWidth: 1,
+    height: 80,
+    width: "70%",
+  },
+  uploadButton: {
+    marginTop: 20,
+
   }
 });
