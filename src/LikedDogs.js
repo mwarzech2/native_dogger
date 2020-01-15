@@ -12,7 +12,7 @@ const config = require('../config');
 
 var data = undefined
 
-export default function MyDogs(props) {
+export default function LikedDogs(props) {
   let _isMounted = false;
 
   //const [data, setData] = useState(undefined);

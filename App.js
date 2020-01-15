@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import Buttons from './src/Buttons';
-import MyDogs from './src/MyDogs';
+import LikedDogs from './src/LikedDogs';
 import Dog from './src/Dog';
 import SwipeView from './src/SwipeView';
 import { TouchableHighlight, StyleSheet, Dimensions, View, Platform, Text} from 'react-native';
@@ -48,6 +48,10 @@ export default function App() {
   ]);
   const [modalVisible, setModalVisible] = React.useState(false);
   const [modalDog, setModalDog] = React.useState(undefined);
+
+  if(Platform.OS === "web"){
+    Modal.setAppElement('body')
+  }
   
 
   const ViewDogs = () => (
@@ -56,12 +60,12 @@ export default function App() {
     </View>
   );
   
-  const LikedDogs = () => (
-    <MyDogs showModalMethod={openModalDog}/>
+  const LikedDogsTab = () => (
+    <LikedDogs showModalMethod={openModalDog}/>
   );
 
   const renderScene = SceneMap({
-    v1: LikedDogs,
+    v1: LikedDogsTab,
     v2: ViewDogs,
     v3: AddDog,
   });

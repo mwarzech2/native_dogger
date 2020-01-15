@@ -44,7 +44,7 @@ export default class SwipeView extends React.Component {
 
   checkElements()
   {
-    if(this.state.currentIndex+1>=Elements.length)
+    if(this.state.currentIndex+2>=Elements.length)
     {
       Elements.splice(0, this.state.currentIndex);
       this.loadDogs()
