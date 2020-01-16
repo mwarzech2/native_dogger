@@ -4,6 +4,10 @@ import { Animated, Dimensions, Button, Image,
 import * as ImagePicker from 'expo-image-picker';
 import Constants from 'expo-constants';
 import * as Permissions from 'expo-permissions';
+import { Icon } from 'react-native-elements'
+import { hostUrl } from '../config';
+
+const config = require('../config');
 
 const { State: TextInputState } = TextInput;
 
@@ -12,13 +16,14 @@ export default class AddDog extends React.Component {
     image: null,
     shift: new Animated.Value(0),
     dogInfo: undefined,
+    dogName: undefined,
   };
 
   constructor(props)
   {
     super(props)
 
-    this.dogName = undefined
+    this.uploadDog = this.uploadDog.bind(this)
   }
 
   componentDidMount() {
@@ -35,14 +40,23 @@ export default class AddDog extends React.Component {
 
   render() {
     let { image } = this.state;
-
     return (
       <Animated.View style={{transform: [{translateY: this.state.shift}], flex: 1, alignItems: 'center', justifyContent: 'flex-start' }}>
-        <View style={{width: "100%", height: "50%", marginBottom: 10, alignItems: 'center', justifyContent: 'center'}}>
+        <View style={{width: "100%", height: "50%", marginBottom: 20, alignItems: 'center', justifyContent: 'center'}}>
           {
             image ?
-            <Image source={{ uri: image }} style={{flex: 1, resizeMode: 'cover'}} />:
-            <Image source={require('../assets/icon.png')} style={{width: 200, height: 200}} />
+            <Image source={{ uri: image }} style={{width: "90%", height: "90%", resizeMode: 'cover', borderRadius: 15,}} /> :
+            <View style={{
+              width: "80%", 
+              height: "80%", 
+              borderColor: "grey", 
+              borderWidth: 6,
+              borderRadius: 15,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+              <Icon name='image' type='font-awesome' color='grey' size={100}/>
+            </View>
           }
         </View>
         <Button
@@ -53,7 +67,7 @@ export default class AddDog extends React.Component {
           style={styles.textInput}
           placeholder='DOG NAME'
           maxLength={15}
-          onChangeText={text => {this.dogName = text}}
+          onChangeText={text => {this.setState({dogName: text})}}
         />
         <TextInput
           multiline
@@ -74,12 +88,51 @@ export default class AddDog extends React.Component {
           style={styles.uploadButton}
         >
           <Button
+            disabled={!(this.state.dogName && this.state.dogInfo && this.state.image)}
             title="Upload the dog"
-            onPress={()=>{}}
+            onPress={this.uploadDog}
           />
         </View>
       </Animated.View>
     );
+  }
+
+  uploadDog(){
+    const data = new FormData();
+    data.append('dogName', this.state.dogName);
+    data.append('dogInfo', this.state.dogInfo);
+    data.append('dogImage', {
+      uri: this.state.image,
+      type: 'image/jpeg', // or photo.type
+      name: this.state.dogName+"Photo.jpg",
+    });
+    fetch(config.hostUrl+"/uploadDog", {
+      method: 'post',
+      body: data
+    }).then((response) => response.json())
+    .then((responseJson) => {
+      if(responseJson.status.statusType.localeCompare("SUCCESS") != 0)
+      {
+        console.warn(responseJson.status.errorMessege);
+        return
+      }
+      Alert.alert(
+        'Uploaded Dog',
+        'Successfully uploaded the dog!',
+        [
+          {text: 'OK', onPress: () => {}},
+        ],
+        {cancelable: false},
+      );
+      this.setState({
+        image: undefined,
+        dogName: undefined,
+        dogInfo: undefined,
+      })
+    })
+    .catch((error) =>{
+      console.error(error);
+    });
   }
 
   handleKeyboardDidShow = (event) => {
@@ -161,7 +214,7 @@ const styles = StyleSheet.create({
     width: "70%",
   },
   uploadButton: {
-    marginTop: 20,
-
+    marginTop: 50,
+    width: "50%",
   }
 });
