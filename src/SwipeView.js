@@ -2,6 +2,7 @@ import React from 'react';
 import { Platform, Text, View, Dimensions, Image, Animated, PanResponder } from 'react-native';
 
 import Icon, { ThemeProvider } from 'react-native-elements'
+import {getRandomDogs, likeDogRequest} from './DoggerRestApi'
 
 const config = require('../config');
 
@@ -21,25 +22,16 @@ function inElementsArray(itemId)
 export default class SwipeView extends React.Component {
   
   loadDogs() {
-    return fetch(config.hostUrl+'/randomDogs?limit=5', {
-      method: 'GET'
-    })
-    .then((response) => response.json())
-    .then((responseJson) => {
-      if(responseJson.status.statusType.localeCompare("SUCCESS") != 0)
-      {
-        console.warn(responseJson.status.errorMessege);
-        return
+    const maxDogsPerLoad = 5
+    getRandomDogs(maxDogsPerLoad,
+      (responseData) => {
+        if(this._isMounted)
+        {
+          Elements = Elements.concat(responseData.filter((item) => !inElementsArray(item.id)));
+          this.setState(this.state)
+        }
       }
-      if(this._isMounted)
-      {
-        Elements = Elements.concat(responseJson.data.filter((item) => !inElementsArray(item.id)));
-        this.setState(this.state)
-      }
-    })
-    .catch((error) =>{
-      console.error(error);
-    });
+    );
   }
 
   checkElements()
@@ -54,23 +46,7 @@ export default class SwipeView extends React.Component {
 
   onLike()
   {
-    fetch(config.hostUrl+'/likeDog', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: "dogId="+Elements[this.state.currentIndex-1].id,
-    }).then((response) => response.json())
-    .then((responseJson) => {
-      if(responseJson.status.statusType.localeCompare("SUCCESS") != 0)
-      {
-        console.warn(responseJson.status.errorMessege);
-        return
-      }
-    })
-    .catch((error) =>{
-      console.error(error);
-    });
+    likeDogRequest(Elements[this.state.currentIndex-1].id);
     this.checkElements()
   }
 

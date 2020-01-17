@@ -16,10 +16,7 @@ class DogPhoto extends React.Component {
 
 render(){
   if(this.props.url === undefined) return null;
-  console.log("Dog photo should load !!!")
   return (
-
-
     <View
       style={{
         flex: 1,

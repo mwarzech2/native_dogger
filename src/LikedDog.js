@@ -1,5 +1,6 @@
 import React from 'react';
 import DogPhoto from './DogPhoto'
+import {deleteLikeRequest} from './DoggerRestApi'
 
 import {
   Text,
@@ -7,31 +8,6 @@ import {
   Button,
   View,
 } from 'react-native';
-
-const config = require('../config');
-
-function UnlikeDog(dogId)
-{
-  console.log("Deleting dog: "+dogId)
-  fetch(config.hostUrl+'/unlikeDog', {
-    method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: "dogId="+dogId,
-  }).then((response) => response.json())
-  .then((responseJson) => {
-    if(responseJson.status === undefined || responseJson.status.statusType.localeCompare("SUCCESS") != 0)
-    {
-      console.error(responseJson.status.errorMessege);
-      return
-    }
-  })
-  .catch((error) =>{
-    console.error(error);
-  });
-}
-
 
 function Dog(props) {
   if(props.dog === undefined) {
@@ -55,7 +31,7 @@ function Dog(props) {
             title="UNLIKE" 
             color='#ff3452'
             onPress={()=>{
-              UnlikeDog(props.dog.id)
+              deleteLikeRequest(props.dog.id, ()=>{})
               props.closeModalMethod()
             }}
           />

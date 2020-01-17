@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react';
-import MyDog from './MyDog'
+import DogButton from './DogButton'
+import {getLikedDogs} from './DoggerRestApi'
 
 import {
   View,
@@ -15,7 +16,6 @@ var data = undefined
 export default function LikedDogs(props) {
   let _isMounted = false;
 
-  //const [data, setData] = useState(undefined);
   const [refreshing, setRefreshing] = React.useState(false);
   const [shouldRefresh, setShouldRefresh] = React.useState(false);
   
@@ -28,17 +28,17 @@ export default function LikedDogs(props) {
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
-    getDogs().then(() => setRefreshing(false));
+    getLikedDogs(setDogsData).then(() => setRefreshing(false));
   }, [refreshing]);
 
   function renderDogs()
   {
     let dogs = []
     
-    getDogs();
+    getLikedDogs(setDogsData);
     if(data === undefined) return null;
     data.forEach((element,i) => {
-      dogs.push(<MyDog
+      dogs.push(<DogButton
         key={i}
         dog={element}
         showModalMethod={props.showModalMethod}
@@ -47,29 +47,13 @@ export default function LikedDogs(props) {
     return dogs;
   }
 
-  function getDogs(){
-    return fetch(config.hostUrl+'/likedDogs', {
-      method: 'GET'
-    })
-    .then((response) => response.json())
-    .then((responseJson) => {
-      if(responseJson.status.statusType.localeCompare("SUCCESS") != 0)
-      {
-        console.warn(responseJson.status.errorMessege);
-        return
-      }
-      if(_isMounted && JSON.stringify(data) !== JSON.stringify(responseJson.data)) {
-        console.log("Updated!!! Old data: "+data+", New Data: "+responseJson.data)
-        data = responseJson.data;
-        setRefreshing(false);
-      }
-    })
-    .catch((error) =>{
-      console.error(error);
-    });
+  function setDogsData(responseData){
+    if(_isMounted && JSON.stringify(data) !== JSON.stringify(responseData)) {
+      data = responseData;
+      setRefreshing(false);
+    }
   }
 
-  console.log("New Update!!!")
   return (
     <View style={props.style}>
       <ScrollView style={{

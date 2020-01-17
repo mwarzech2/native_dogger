@@ -5,7 +5,8 @@ import * as ImagePicker from 'expo-image-picker';
 import Constants from 'expo-constants';
 import * as Permissions from 'expo-permissions';
 import { Icon } from 'react-native-elements'
-import { hostUrl } from '../config';
+import {uploadDogRequest} from './DoggerRestApi'
+import DogToUpload from './DogToUpload';
 
 const config = require('../config');
 
@@ -98,24 +99,8 @@ export default class AddDog extends React.Component {
   }
 
   uploadDog(){
-    const data = new FormData();
-    data.append('dogName', this.state.dogName);
-    data.append('dogInfo', this.state.dogInfo);
-    data.append('dogImage', {
-      uri: this.state.image,
-      type: 'image/jpeg', // or photo.type
-      name: this.state.dogName+"Photo.jpg",
-    });
-    fetch(config.hostUrl+"/uploadDog", {
-      method: 'post',
-      body: data
-    }).then((response) => response.json())
-    .then((responseJson) => {
-      if(responseJson.status.statusType.localeCompare("SUCCESS") != 0)
-      {
-        console.warn(responseJson.status.errorMessege);
-        return
-      }
+    let dogToUpload = new DogToUpload(this.state.dogName, this.state.dogInfo, this.state.image);
+    uploadDogRequest(dogToUpload, () => {
       Alert.alert(
         'Uploaded Dog',
         'Successfully uploaded the dog!',
@@ -125,13 +110,10 @@ export default class AddDog extends React.Component {
         {cancelable: false},
       );
       this.setState({
-        image: undefined,
+        image: null,
         dogName: undefined,
         dogInfo: undefined,
       })
-    })
-    .catch((error) =>{
-      console.error(error);
     });
   }
 
@@ -179,9 +161,11 @@ export default class AddDog extends React.Component {
 
   _pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      mediaTypes: ImagePicker.MediaTypeOptions.Image,
       allowsEditing: true,
-      quality: 1
+      quality: 1,
+      base64: false,
+      exif: true
     });
 
     console.log(result);
