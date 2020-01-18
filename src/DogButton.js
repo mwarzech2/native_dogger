@@ -16,7 +16,7 @@ class MyDog extends React.Component {
 render(){
   if(this.props.dog === undefined) return null;
   return (
-    <TouchableRipple onPress={()=>{this.props.showModalMethod(this.props.dog)}} 
+    <TouchableRipple onPress={()=>{this.props.showModalMethod()}} 
       rippleColor="#ffffff60"
       style={styles.container}>
       <View style={{width: "100%", marginLeft: "10%", flexDirection: "row"}}>

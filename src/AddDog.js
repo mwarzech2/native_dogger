@@ -43,14 +43,14 @@ export default class AddDog extends React.Component {
   render() {
     let { image } = this.state;
     return (
-      <Animated.View style={{transform: [{translateY: this.state.shift}], flex: 1, alignItems: 'center', justifyContent: 'flex-start' }}>
-        <View style={{width: "100%", height: "50%", marginBottom: 20, alignItems: 'center', justifyContent: 'center'}}>
+      <Animated.View style={{transform: [{translateY: this.state.shift}], flex: 1, width: "100%", alignItems: 'center', justifyContent: 'flex-start' }}>
+        <View style={{width: "100%", height: "55%", marginBottom: 30, alignItems: 'center', justifyContent: 'center'}}>
           {
             image ?
-            <Image source={{ uri: image }} style={{width: "90%", height: "90%", resizeMode: 'cover', borderRadius: 15,}} /> :
+            <Image source={{ uri: image }} style={{width: "100%", height: "100%", resizeMode: 'cover', borderRadius: 0,}} /> :
             <View style={{
-              width: "80%", 
-              height: "80%", 
+              width: "70%", 
+              height: "70%", 
               borderColor: "grey", 
               borderWidth: 6,
               borderRadius: 15,
@@ -107,6 +107,7 @@ export default class AddDog extends React.Component {
     onFailure = onFailure.bind(this);
 
     function onSuccess() {
+      this.props.closeModalMethod()
       Alert.alert(
         'Uploaded Dog',
         'Successfully uploaded the dog!',
@@ -115,12 +116,6 @@ export default class AddDog extends React.Component {
         ],
         {cancelable: false},
       );
-      this.setState({
-        image: null,
-        dogName: undefined,
-        dogInfo: undefined,
-        uploading: false,
-      })
     }
     
     function onFailure() {
@@ -181,7 +176,7 @@ export default class AddDog extends React.Component {
       exif: true
     });
 
-    console.log(result);
+    console.log(result)
 
     if (!result.cancelled) {
       this.setState({ image: result.uri });

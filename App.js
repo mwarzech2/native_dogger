@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import LikedDogs from './src/LikedDogs';
 import LikedDog from './src/LikedDog';
 import AddDog from './src/AddDog';
+import MyDogs from './src/MyDogs';
 import SwipeDogs from './src/SwipeDogs';
 import { TouchableHighlight, StyleSheet, Dimensions, View, Platform, Text} from 'react-native';
 
@@ -21,15 +22,10 @@ const getTabBarIcon = (props) => {
     case 'v2':
       return <Icon name='paw' type='font-awesome' color='#fff'/>
     case 'v3':
-      return <Icon name='plus' type='font-awesome' color='#fff'/>
+      return <Icon name='user' type='font-awesome' color='#fff'/>
   }
   return null
 }
-
-
-const AddDogTab = () => (
-  <AddDog />
-);
 
 const initialLayout = { width: Dimensions.get('window').width };
 
@@ -44,35 +40,40 @@ export default function App() {
   const [routes] = React.useState([
     { key: 'v1', title: 'Liked Dogs' },
     { key: 'v2', title: 'View Dogs' },
-    { key: 'v3', title: 'Add dog' },
+    { key: 'v3', title: 'My Dogs' },
   ]);
   const [modalVisible, setModalVisible] = React.useState(false);
-  const [modalDog, setModalDog] = React.useState(undefined);
+  const [modalView, setModalView] = React.useState(null);
 
   if(Platform.OS === "web"){
     Modal.setAppElement('body')
   }
   
 
-  const ViewDogs = () => (
+  const ViewDogsTab = () => (
     <View style={{flex: 1}}>
       <SwipeDogs />
     </View>
   );
   
   const LikedDogsTab = () => (
-    <LikedDogs showModalMethod={openModalDog}/>
+    <LikedDogs showModalMethod={openModalWithView} closeModalMethod={()=>{setModalVisible(false)}} />
+  );
+  
+  const MyDogsTab = () => (
+    //<AddDog />
+    <MyDogs showModalMethod={openModalWithView} closeModalMethod={()=>{setModalVisible(false)}} />
   );
 
   const renderScene = SceneMap({
     v1: LikedDogsTab,
-    v2: ViewDogs,
-    v3: AddDogTab,
+    v2: ViewDogsTab,
+    v3: MyDogsTab,
   });
 
-  function openModalDog(dog)
+  function openModalWithView(view)
   {
-    setModalDog(dog);
+    setModalView(view);
     setModalVisible(true);
   }
 
@@ -81,18 +82,18 @@ export default function App() {
       <Modal animationType = {"slide"}
           transparent = {false}
           visible = {modalVisible}
-          onRequestClose = {() => { console.log("Modal has been closed.") } }
+          onRequestClose = {() => { } }
         >
           
         <View style = {styles.modal}>
-          <LikedDog dog={modalDog} closeModalMethod={()=>{setModalVisible(false)}}/>
+          {modalView}
           <View style={{position: "absolute", top: 5, left: 5, zIndex: 5}}>
             <IconButton
               icon="arrow-left"
               type='font-awesome'
               color="#ffffff"
               size={35}
-              onPress={() => {setModalVisible(!openModalDog)}}
+              onPress={() => {setModalVisible(false)}}
             />
           </View>
         </View>

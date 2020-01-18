@@ -6,7 +6,7 @@ function getResponse(response, onFailureMethod=()=>{}) {
     return response.json()
   }
   console.warn("Error status "+response.status);
-  console.warn(response);
+  console.warn(JSON.stringify(response));
   onFailureMethod();
   return null
 }
@@ -31,7 +31,7 @@ function handleResponse(fetchMethod, onSuccessMethod, onFailureMethod=()=>{}) {
       onSuccessMethod(responseJson.data)
     })
     .catch((error) =>{
-        console.error(error);
+        console.warn(error);
         onFailureMethod()
     })
 }
@@ -44,6 +44,10 @@ export function getRequest(endPoint, setDataMethod){
 
 export function getLikedDogs(setDataMethod){
   return getRequest('/likedDogs', setDataMethod)
+}
+
+export function getMyDogs(setDataMethod){
+  return getRequest('/myDogs', setDataMethod)
 }
 
 export function getRandomDogs(dogsCountLimit, setDataMethod) {

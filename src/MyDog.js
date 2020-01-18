@@ -1,6 +1,5 @@
 import React from 'react';
 import DogPhoto from './DogPhoto'
-import {deleteLikeRequest} from './DoggerRestApi'
 
 import {
   Text,
@@ -9,7 +8,7 @@ import {
   View,
 } from 'react-native';
 
-function LikedDog(props) {
+function MyDog(props) {
   if(props.dog === undefined) {
     return null
   } else {
@@ -26,21 +25,11 @@ function LikedDog(props) {
         </View>
         <Text style={styles.title}>{props.dog.name}</Text>
         <Text style={styles.text}>{props.dog.info}</Text>
-        <View style={[{position: "absolute", bottom: 10, right: 10}]}>
-          <Button 
-            title="UNLIKE" 
-            color='#ff3452'
-            onPress={()=>{
-              deleteLikeRequest(props.dog.id, ()=>{})
-              props.closeModalMethod()
-            }}
-          />
-        </View>
       </View>
     );
   }
 }
-export default LikedDog;
+export default MyDog;
 
 const styles = StyleSheet.create({
   title: {

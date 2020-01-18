@@ -1,20 +1,22 @@
 import React, {useState, useEffect} from 'react';
 import DogButton from './DogButton'
-import LikedDog from './LikedDog';
-import {getLikedDogs} from './DoggerRestApi'
+import MyDog from './MyDog';
+import {getMyDogs} from './DoggerRestApi'
+import { IconButton } from 'react-native-paper';
 
 import {
   View,
   ScrollView,
   RefreshControl,
   } from 'react-native';
+import AddDog from './AddDog';
 
   
 const config = require('../config');
 
 var data = undefined
 
-export default function LikedDogs(props) {
+export default function MyDogs(props) {
   let _isMounted = false;
 
   const [refreshing, setRefreshing] = React.useState(false);
@@ -29,17 +31,17 @@ export default function LikedDogs(props) {
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
-    getLikedDogs(setDogsData).then(() => setRefreshing(false));
+    getMyDogs(setDogsData).then(() => setRefreshing(false));
   }, [refreshing]);
 
   function renderDogs()
   {
     let dogs = []
     
-    getLikedDogs(setDogsData);
+    getMyDogs(setDogsData);
     if(data === undefined) return null;
     data.forEach((element,i) => {
-      let view = <LikedDog dog={element} closeModalMethod={props.closeModalMethod}/>
+      let view = <MyDog dog={element} closeModalMethod={props.closeModalMethod}/>
       dogs.push(<DogButton
         key={i}
         dog={element}
@@ -59,6 +61,20 @@ export default function LikedDogs(props) {
 
   return (
     <View style={props.style}>
+      <View style={{position: "absolute", bottom: 30, right: 30, zIndex: 5,
+                    width:60, height:60, borderRadius:30, backgroundColor:'#2196f3',
+                    alignItems: 'center', justifyContent: 'center'}}>
+        <IconButton
+          icon="plus"
+          type='font-awesome'
+          color="#ffffff"
+          size={40}
+          onPress={() => {
+            let view = <AddDog closeModalMethod={props.closeModalMethod}/>
+            props.showModalMethod(view)
+          }}
+        />
+      </View>
       <ScrollView style={{
         flexDirection: "column",
         height:"100%",
