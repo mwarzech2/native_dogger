@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "native_dogger",
-    "slug": "native_dogger",
+    "name": "dogger",
+    "slug": "dogger",
     "privacy": "public",
     "sdkVersion": "36.0.0",
     "platforms": [
@@ -9,11 +9,12 @@
       "android",
       "web"
     ],
+    "userInterfaceStyle": "light",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/doggerLogo.png",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/LOGO.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -25,6 +26,9 @@
     ],
     "ios": {
       "supportsTablet": true
+    },
+    "android": {
+      "package": "com.doggerIoAGH.dogger"
     }
   }
 }

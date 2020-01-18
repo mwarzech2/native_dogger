@@ -44,7 +44,7 @@ export default class AddDog extends React.Component {
     let { image } = this.state;
     return (
       <Animated.View style={{transform: [{translateY: this.state.shift}], flex: 1, width: "100%", alignItems: 'center', justifyContent: 'flex-start' }}>
-        <View style={{width: "100%", height: "55%", marginBottom: 30, alignItems: 'center', justifyContent: 'center'}}>
+        <View style={{width: "100%", height: "50%", marginBottom: 20, alignItems: 'center', justifyContent: 'center'}}>
           {
             image ?
             <Image source={{ uri: image }} style={{width: "100%", height: "100%", resizeMode: 'cover', borderRadius: 0,}} /> :
@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
     width: "70%",
   },
   uploadButton: {
-    marginTop: 50,
+    marginTop: 20,
     width: "50%",
   }
 });
