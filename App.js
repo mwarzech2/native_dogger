@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import LikedDogs from './src/LikedDogs';
 import LikedDog from './src/LikedDog';
 import AddDog from './src/AddDog';
-import SwipeView from './src/SwipeView';
+import SwipeDogs from './src/SwipeDogs';
 import { TouchableHighlight, StyleSheet, Dimensions, View, Platform, Text} from 'react-native';
 
 import { TabView, TabBar, SceneMap } from 'react-native-tab-view';
@@ -56,7 +56,7 @@ export default function App() {
 
   const ViewDogs = () => (
     <View style={{flex: 1}}>
-      <SwipeView />
+      <SwipeDogs />
     </View>
   );
   

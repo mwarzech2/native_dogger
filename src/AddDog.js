@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Animated, Dimensions, Button, Image,
-   View, Keyboard, TextInput, UIManager, StyleSheet} from 'react-native';
+   View, Keyboard, TextInput, UIManager, StyleSheet, Alert} from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import Constants from 'expo-constants';
 import * as Permissions from 'expo-permissions';
@@ -18,6 +18,7 @@ export default class AddDog extends React.Component {
     shift: new Animated.Value(0),
     dogInfo: undefined,
     dogName: undefined,
+    uploading: false,
   };
 
   constructor(props)
@@ -68,6 +69,7 @@ export default class AddDog extends React.Component {
           style={styles.textInput}
           placeholder='DOG NAME'
           maxLength={15}
+          value={this.state.dogName?this.state.dogName:''}
           onChangeText={text => {this.setState({dogName: text})}}
         />
         <TextInput
@@ -89,7 +91,7 @@ export default class AddDog extends React.Component {
           style={styles.uploadButton}
         >
           <Button
-            disabled={!(this.state.dogName && this.state.dogInfo && this.state.image)}
+            disabled={this.state.uploading || !(this.state.dogName && this.state.dogInfo && this.state.image)}
             title="Upload the dog"
             onPress={this.uploadDog}
           />
@@ -100,7 +102,11 @@ export default class AddDog extends React.Component {
 
   uploadDog(){
     let dogToUpload = new DogToUpload(this.state.dogName, this.state.dogInfo, this.state.image);
-    uploadDogRequest(dogToUpload, () => {
+    this.setState({uploading: true});
+    onSuccess = onSuccess.bind(this);
+    onFailure = onFailure.bind(this);
+
+    function onSuccess() {
       Alert.alert(
         'Uploaded Dog',
         'Successfully uploaded the dog!',
@@ -113,8 +119,15 @@ export default class AddDog extends React.Component {
         image: null,
         dogName: undefined,
         dogInfo: undefined,
+        uploading: false,
       })
-    });
+    }
+    
+    function onFailure() {
+      this.setState({uploading: false})
+    }
+
+    uploadDogRequest(dogToUpload, onSuccess, onFailure);
   }
 
   handleKeyboardDidShow = (event) => {

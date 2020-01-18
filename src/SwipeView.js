@@ -2,78 +2,25 @@ import React from 'react';
 import { Platform, Text, View, Dimensions, Image, Animated, PanResponder } from 'react-native';
 
 import Icon, { ThemeProvider } from 'react-native-elements'
-import {getRandomDogs, likeDogRequest} from './DoggerRestApi'
 
 const config = require('../config');
 
-var Elements = []
-
-function inElementsArray(itemId)
-{
-  for(var i=0; i<Elements.length;i++)
-  {
-    if(Elements[i].id === itemId) {
-      return true
-    }
-  }
-  return false
-}
-
 export default class SwipeView extends React.Component {
-  
-  loadDogs() {
-    const maxDogsPerLoad = 5
-    getRandomDogs(maxDogsPerLoad,
-      (responseData) => {
-        if(this._isMounted)
-        {
-          Elements = Elements.concat(responseData.filter((item) => !inElementsArray(item.id)));
-          this.setState(this.state)
-        }
-      }
-    );
-  }
-
-  checkElements()
-  {
-    if(this.state.currentIndex+2>=Elements.length)
-    {
-      Elements.splice(0, this.state.currentIndex);
-      this.loadDogs()
-      this.setState({currentIndex: 0});
-    }
-  }
-
-  onLike()
-  {
-    likeDogRequest(Elements[this.state.currentIndex-1].id);
-    this.checkElements()
-  }
-
-  onDislike()
-  {
-    this.checkElements()
-  }
 
   updateSize()
   {
     this.setState({windowSize: Dimensions.get('window')});
   }
 
-  constructor() {
-    super()
+  constructor(props) {
+    super(props)
 
     this.position = new Animated.ValueXY()
     this.state = {
       currentIndex: 0,
       windowSize: Dimensions.get('window'),
     }
-    this.loadDogs = this.loadDogs.bind(this)
-    this.onLike = this.onLike.bind(this)
-    this.onDislike = this.onDislike.bind(this)
-    this.checkElements = this.checkElements.bind(this)
     this.updateSize = this.updateSize.bind(this)
-    this._isMounted = false;
 
     this.rotate = this.position.x.interpolate({
       inputRange: [-Dimensions.get('window').width /2 ,0, Dimensions.get('window').width /2],
@@ -129,7 +76,7 @@ export default class SwipeView extends React.Component {
             this.setState({ currentIndex: this.state.currentIndex + 1 }, () => {
               this.position.setValue({ x: 0, y: 0 })
             })
-            this.onLike();
+            this.props.onLike(this);
           })
         }
         else if (gestureState.dx < -120) {
@@ -141,7 +88,7 @@ export default class SwipeView extends React.Component {
             this.setState({ currentIndex: this.state.currentIndex + 1 }, () => {
               this.position.setValue({ x: 0, y: 0 })
             })
-            this.onDislike();
+            this.props.onDislike(this);
           })
         }
         else {
@@ -154,25 +101,14 @@ export default class SwipeView extends React.Component {
     })
 
   }
-  componentDidMount() {
-    if(Elements.length <= 0)
-    {
-      this.loadDogs();
-    }
-    this._isMounted = true
-  }
-
-  componentWillUnmount() {
-    this._isMounted = false
-  }
 
   renderElements = () => {
     if(!(Platform.OS === 'android' || Platform.OS === 'ios')){
       window.addEventListener('resize', this.updateSize);
     }
-    if(Elements.length <= 0) return null;
+    if(this.props.Elements.length <= 0) return null;
 
-    return Elements.map((item, i) => {
+    return this.props.Elements.map((item, i) => {
 
 
       if (i < this.state.currentIndex) {

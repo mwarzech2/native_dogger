@@ -1,12 +1,13 @@
 const config = require('../config');
 
 
-function getResponse(response) {
+function getResponse(response, onFailureMethod=()=>{}) {
   if(response.status === 200) {
     return response.json()
   }
   console.warn("Error status "+response.status);
   console.warn(response);
+  onFailureMethod();
   return null
 }
 
@@ -20,14 +21,18 @@ function checkResponseJson(responseJson) {
   return true
 }
 
-function handleResponse(fetchMethod, onSuccessMethod) {
+function handleResponse(fetchMethod, onSuccessMethod, onFailureMethod=()=>{}) {
   return fetchMethod.then(getResponse)
     .then((responseJson) => {
-      if(!checkResponseJson(responseJson)) return
+      if(!checkResponseJson(responseJson)){
+        onFailureMethod()
+        return
+      }
       onSuccessMethod(responseJson.data)
     })
     .catch((error) =>{
         console.error(error);
+        onFailureMethod()
     })
 }
 
@@ -67,23 +72,29 @@ export function deleteLikeRequest(dogId, onSuccessMethod){
   }), onSuccessMethod)
 }
 
-export function uploadDogRequest(dog, onSuccessMethod) {
-  let data = new FormData();
-  data.append('dogName', dog.name);
-  data.append('dogInfo', dog.info);
-  data.append('dogImage', {
-    uri: dog.image,
-    type: 'image/jpeg', // or photo.type
-    name: dog.name+"Photo.jpg",
+export function uploadDogRequest(dog, onSuccessMethod, onFailureMethod=()=>{}) {
+  let localUri = dog.image
+  let filename = 'dog.jpg'
+  let type = 'image/jpeg'
+  
+  let body = new FormData();
+  body.append('dogName', dog.name);
+  body.append('dogInfo', dog.info);
+  body.append('dogImage', {
+    uri: localUri,
+    type: type, // or photo.type
+    name: filename,
   });
-  console.log(data)
+  console.log(body)
+
+  let serverURL = config.hostUrl+"/uploadDog"
+  //var xhr = new XMLHttpRequest();
+  //xhr.open('POST', serverURL);
+  //xhr.send(body);
+
   return handleResponse(
-    fetch(config.hostUrl+"/uploadDog", {
+    fetch(serverURL, {
       method: 'post',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'multipart/form-data',
-      },
-      body: data
-    }), onSuccessMethod)
+      body: body
+    }), onSuccessMethod, onFailureMethod)
 }
