@@ -1,4 +1,4 @@
-const config = require('../config');
+const config = require('./config');
 
 
 function getResponse(response, onFailureMethod=()=>{}) {
@@ -25,7 +25,7 @@ function handleResponse(fetchMethod, onSuccessMethod, onFailureMethod=()=>{}) {
   return fetchMethod.then(getResponse)
     .then((responseJson) => {
       if(!checkResponseJson(responseJson)){
-        onFailureMethod()
+        onFailureMethod(responseJson)
         return
       }
       onSuccessMethod(responseJson.data)

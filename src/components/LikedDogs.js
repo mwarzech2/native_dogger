@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import DogButton from './DogButton'
 import LikedDog from './LikedDog';
-import {getLikedDogs} from './DoggerRestApi'
+import {getLikedDogs} from '../DoggerRestApi'
 
 import {
   View,

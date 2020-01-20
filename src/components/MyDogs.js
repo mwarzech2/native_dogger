@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import DogButton from './DogButton'
 import MyDog from './MyDog';
-import {getMyDogs} from './DoggerRestApi'
+import {getMyDogs} from '../DoggerRestApi'
 import { IconButton } from 'react-native-paper';
 
 import {

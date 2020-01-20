@@ -1,6 +1,6 @@
 import React from 'react';
 import SwipeView from './SwipeView';
-import {getRandomDogs, likeDogRequest} from './DoggerRestApi'
+import {getRandomDogs, likeDogRequest} from '../DoggerRestApi'
 import { enableExpoCliLogging } from 'expo/build/logs/Logs';
 
 var Elements = []

@@ -1,6 +1,6 @@
 import React from 'react';
 import DogPhoto from './DogPhoto'
-import {deleteLikeRequest} from './DoggerRestApi'
+import {deleteLikeRequest} from '../DoggerRestApi'
 
 import {
   Text,
